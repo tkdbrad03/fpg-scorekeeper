@@ -537,48 +537,93 @@
             const response = await fetch(sheetUrl);
             const text = await response.text();
 
-            // Simple CSV parse (handles commas in values poorly; keep your headers/values simple)
-            const rows = text.split('\n').map(r => r.split(','));
-            const headers = rows[0].map(h => h.trim());
+            // Robust CSV parse that supports quotes & commas-in-fields
+function parseCSV(text) {
+  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+  const table = [];
+  for (const line of lines) {
+    if (line === "" && table.length > 0) continue; // skip trailing blank
+    const row = [];
+    let cur = "";
+    let q = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (q && line[i + 1] === '"') { cur += '"'; i++; }
+        else { q = !q; }
+      } else if (ch === "," && !q) {
+        row.push(cur);
+        cur = "";
+      } else {
+        cur += ch;
+      }
+    }
+    row.push(cur);
+    table.push(row.map(v => v.trim()));
+  }
+  return table;
+}
 
-            // Match the exact headers you confirmed in your sheet
-            const nameIndex =
-  headers.indexOf('Player Name *') !== -1
-    ? headers.indexOf('Player Name *')
-    : headers.indexOf('Player Name');
-const prefIndex = headers.indexOf('Pairing Requests') !== -1 ? headers.indexOf('Pairing Requests') : headers.indexOf('Pairing Request');
+const table = parseCSV(text);
+if (!table.length) return;
+
+const headers = table[0].map(h => h.trim());
+
+// indices (tolerant to “Player Name *”)
+const nameIndex = headers.indexOf('Player Name *') !== -1
+  ? headers.indexOf('Player Name *')
+  : headers.indexOf('Player Name');
+
+const prefIndex = headers.indexOf('Pairing Requests') !== -1
+  ? headers.indexOf('Pairing Requests')
+  : headers.indexOf('Pairing Request');
+
 const notesIndex = headers.indexOf('Notes');
+const eventIndex = headers.indexOf('Event');
 
-// Filter rows: only include upcoming event check-ins
+// convert to rows (skip header)
+const rows = table.slice(1).filter(r => r.length && r[nameIndex]);
+
+// --- keep only upcoming (and, if multiple, only the nearest upcoming date) ---
 const today = new Date();
+today.setHours(0,0,0,0);
 
-// Build players only for upcoming events
-const data = rows.slice(1).filter(r => {
-  const eventName = (r[headers.indexOf('Event')] || '').trim();
-  if (!eventName || !r[nameIndex]) return false;
+function extractEventDate(ev) {
+  // Matches "... , October 25" or "October 25" (optionally with year)
+  const m = (ev || "").match(/(?:,\s*)?([A-Za-z]+)\s+(\d{1,2})(?:,\s*(\d{4}))?$/);
+  if (!m) return null;
+  const [, mon, day, yr] = m;
+  const y = yr ? parseInt(yr,10) : today.getFullYear();
+  const d = new Date(`${mon} ${day}, ${y}`);
+  if (isNaN(d)) return null;
+  d.setHours(0,0,0,0);
+  return d;
+}
 
-  // Match last comma + month + day pattern
-  const dateMatch = eventName.match(/,\s*([A-Za-z]+)\s+(\d{1,2})$/);
-  if (!dateMatch) return false;
+const upcoming = [];
+for (const r of rows) {
+  const ev = eventIndex !== -1 ? r[eventIndex] : "";
+  const d = extractEventDate(ev);
+  if (d && d >= today) upcoming.push({ r, d });
+}
 
-  const [, monthName, dayNum] = dateMatch;
+// if nothing matched as upcoming, fall back to all rows (so you still see data)
+const source = upcoming.length ? (() => {
+  // choose the **nearest** upcoming date only
+  const minTime = Math.min(...upcoming.map(x => x.d.getTime()));
+  return upcoming.filter(x => x.d.getTime() === minTime).map(x => x.r);
+})() : rows;
 
-  // Construct event date using current year
-  const eventDate = new Date(`${monthName} ${dayNum}, ${today.getFullYear()}`);
-
-  // Normalize comparison (ignore time)
-  const eventMidnight = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
-  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-  return eventMidnight >= todayMidnight;
-});
-
-players = data.map(r => ({
+// build players
+players = source.map(r => ({
   name: (r[nameIndex] || '').trim(),
-  preferences: (r[prefIndex] ? r[prefIndex].split(',').map(p => p.trim()).filter(Boolean) : []),
+  preferences: (prefIndex !== -1 && r[prefIndex])
+    ? r[prefIndex].split(',').map(p => p.trim()).filter(Boolean)
+    : [],
   canScorekeep: true,
-  notes: (r[notesIndex] || '').trim()
+  notes: (notesIndex !== -1 ? (r[notesIndex] || '').trim() : '')
 }));
+
 
 
 
