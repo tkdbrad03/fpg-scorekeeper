@@ -542,9 +542,12 @@
             const headers = rows[0].map(h => h.trim());
 
             // Match the exact headers you confirmed in your sheet
-            const nameIndex = headers.indexOf('Player Name');
-            const prefIndex = headers.indexOf('Pairing Requests');
-            const notesIndex = headers.indexOf('Notes');
+            const nameIndex =
+  headers.indexOf('Player Name *') !== -1
+    ? headers.indexOf('Player Name *')
+    : headers.indexOf('Player Name');
+const prefIndex = headers.indexOf('Pairing Requests') !== -1 ? headers.indexOf('Pairing Requests') : headers.indexOf('Pairing Request');
+const notesIndex = headers.indexOf('Notes');
 
             // Build players from rows that have a Player Name
             const data = rows.slice(1).filter(r => r[nameIndex] && r[nameIndex].trim().length > 0);
