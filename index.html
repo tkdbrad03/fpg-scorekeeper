@@ -474,6 +474,12 @@
             </div>
             <div class="actions">
                 <button class="btn btn-secondary" onclick="loadCheckIns()">Refresh Check-Ins</button>
+                <input 
+  type="time" 
+  id="start-time" 
+  value="09:00" 
+  style="padding: 0.5rem; border: 2px solid #3c763d; border-radius: 6px; font-weight: 600;"
+/>
                 <button class="btn btn-gold" onclick="autoSuggest()">Smart Suggestions</button>
                 <button class="btn btn-primary" onclick="previewPairings()">Preview</button>
                 <button class="btn btn-primary" onclick="publishPairings()">Publish & Email</button>
@@ -693,13 +699,20 @@ players = source.map(r => ({
         }
 
         function calculateTeeTime(groupIndex) {
-            const startTime = 9 * 60; // 9:00 AM in minutes
-            const interval = 10; // 10 minutes between groups
-            const time = startTime + (groupIndex * interval);
-            const hours = Math.floor(time / 60);
-            const minutes = time % 60;
-            return `${hours}:${minutes.toString().padStart(2, '0')} AM`;
-        }
+    const input = document.getElementById('start-time');
+    const [inputHour, inputMinute] = input.value.split(':').map(Number);
+    const interval = 10; // 10 minutes between groups
+    const startTime = (inputHour * 60) + inputMinute;
+    const time = startTime + (groupIndex * interval);
+    
+    let hours = Math.floor(time / 60);
+    let minutes = time % 60;
+    const suffix = hours >= 12 ? 'PM' : 'AM';
+    if (hours > 12) hours -= 12;
+    if (hours === 0) hours = 12;
+    return `${hours}:${minutes.toString().padStart(2, '0')} ${suffix}`;
+}
+
 
         function renderGroups() {
             const container = document.getElementById('groups-container');
