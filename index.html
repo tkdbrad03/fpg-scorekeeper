@@ -701,7 +701,7 @@ players = source.map(r => ({
         function calculateTeeTime(groupIndex) {
     const input = document.getElementById('start-time');
     const [inputHour, inputMinute] = input.value.split(':').map(Number);
-    const interval = 10; // 10 minutes between groups
+    const interval = 8; // 8 minutes between groups
     const startTime = (inputHour * 60) + inputMinute;
     const time = startTime + (groupIndex * interval);
     
