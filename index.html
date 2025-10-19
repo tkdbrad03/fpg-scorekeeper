@@ -549,14 +549,30 @@
 const prefIndex = headers.indexOf('Pairing Requests') !== -1 ? headers.indexOf('Pairing Requests') : headers.indexOf('Pairing Request');
 const notesIndex = headers.indexOf('Notes');
 
-            // Build players from rows that have a Player Name
-            const data = rows.slice(1).filter(r => r[nameIndex] && r[nameIndex].trim().length > 0);
-            players = data.map(r => ({
-                name: (r[nameIndex] || '').trim(),
-                preferences: (r[prefIndex] ? r[prefIndex].split(',').map(p => p.trim()).filter(Boolean) : []),
-                canScorekeep: true, // keep as-is; adjust later if you add logic
-                notes: (r[notesIndex] || '').trim()
-            }));
+// Filter rows: only include upcoming event check-ins
+const today = new Date();
+
+// Build players only for upcoming events
+const data = rows.slice(1).filter(r => {
+  const eventName = (r[headers.indexOf('Event')] || '').trim();
+  if (!eventName || !r[nameIndex]) return false;
+
+  // Extract date at the end (e.g., "October 25")
+  const dateMatch = eventName.match(/([A-Za-z]+)\s+(\d{1,2})/);
+  if (!dateMatch) return false;
+
+  const [, monthName, dayNum] = dateMatch;
+  const eventDate = new Date(`${monthName} ${dayNum}, ${today.getFullYear()}`);
+  return eventDate >= today; // keep only future or today
+});
+
+players = data.map(r => ({
+  name: (r[nameIndex] || '').trim(),
+  preferences: (r[prefIndex] ? r[prefIndex].split(',').map(p => p.trim()).filter(Boolean) : []),
+  canScorekeep: true,
+  notes: (r[notesIndex] || '').trim()
+}));
+
 
             unassignedPlayers = [...players];
             renderPlayerPool();
