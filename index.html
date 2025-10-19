@@ -557,13 +557,20 @@ const data = rows.slice(1).filter(r => {
   const eventName = (r[headers.indexOf('Event')] || '').trim();
   if (!eventName || !r[nameIndex]) return false;
 
-  // Extract date at the end (e.g., "October 25")
-  const dateMatch = eventName.match(/([A-Za-z]+)\s+(\d{1,2})/);
+  // Match last comma + month + day pattern
+  const dateMatch = eventName.match(/,\s*([A-Za-z]+)\s+(\d{1,2})$/);
   if (!dateMatch) return false;
 
   const [, monthName, dayNum] = dateMatch;
+
+  // Construct event date using current year
   const eventDate = new Date(`${monthName} ${dayNum}, ${today.getFullYear()}`);
-  return eventDate >= today; // keep only future or today
+
+  // Normalize comparison (ignore time)
+  const eventMidnight = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  return eventMidnight >= todayMidnight;
 });
 
 players = data.map(r => ({
@@ -572,6 +579,7 @@ players = data.map(r => ({
   canScorekeep: true,
   notes: (r[notesIndex] || '').trim()
 }));
+
 
 
             unassignedPlayers = [...players];
