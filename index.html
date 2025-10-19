@@ -549,8 +549,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo" style="font-size: 4rem;">
-                ⛳
+            <div class="logo">
+                <img src="https://raw.githubusercontent.com/tkdbrad03/fpg-scorekeeper/main/fpg-logo.png" alt="Florida Players Group Logo">
             </div>
             <h1>Florida Players Group</h1>
             <p class="tagline">Good Golf • Good Friends • Good Times</p>
@@ -638,7 +638,7 @@
 
                 <div class="distance-display">
                     <div style="color: #3c763d; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
-                        🧭 GPS DISTANCE
+                        GPS DISTANCE
                     </div>
                     <div class="distance-value" id="distance-yards">245</div>
                     <div style="color: #6c757d; font-size: 0.875rem; margin: 0.5rem 0 1rem;">yards to center</div>
@@ -646,14 +646,14 @@
 
                 <div class="player-selector" id="player-selector">
                     <div style="font-size: 0.875rem; font-weight: 600; color: #2d5a2e; margin-bottom: 0.75rem;">
-                        📝 Entering Score For:
+                        Entering Score For:
                     </div>
                     <div class="current-player">
                         <div>
                             <div style="font-weight: bold; font-size: 1.125rem;" id="current-player-name">Player</div>
                             <div style="font-size: 0.75rem; color: #6c757d;" id="current-player-status">Tap to switch</div>
                         </div>
-                        <div style="font-size: 1.5rem;">👤</div>
+                        <div style="font-size: 1.5rem;"></div>
                     </div>
                     <div class="player-switcher" id="player-switcher"></div>
                 </div>
@@ -700,12 +700,12 @@
         <div id="stats-view" class="view">
             <div class="content">
                 <div class="card">
-                    <h2>🏆 Group Leaderboard</h2>
+                    <h2>Group Leaderboard</h2>
                     <div id="group-leaderboard"></div>
                 </div>
 
                 <div class="card">
-                    <h2>✅ Scorekeeping Status</h2>
+                    <h2>Scorekeeping Status</h2>
                     <div id="scorekeeper-status"></div>
                 </div>
 
@@ -723,7 +723,7 @@
                 </div>
                 
                 <div class="card">
-                    <h2>🏆 Live Tournament Leaderboard</h2>
+                    <h2>Live Tournament Leaderboard</h2>
                     <div id="live-leaderboard">
                         <div style="text-align: center; padding: 2rem; color: #6c757d;">
                             Loading live scores...
@@ -740,23 +740,23 @@
         <!-- Bottom Navigation -->
         <div class="bottom-nav hidden" id="bottom-nav">
             <button class="nav-item" onclick="showView('setup')">
-                <div class="nav-icon">🏠</div>
+                <div class="nav-icon"></div>
                 <div>Home</div>
             </button>
             <button class="nav-item active" onclick="showView('play')">
-                <div class="nav-icon">🎯</div>
+                <div class="nav-icon"></div>
                 <div>Play</div>
             </button>
             <button class="nav-item" onclick="showView('scorecard')">
-                <div class="nav-icon">⛳</div>
+                <div class="nav-icon"></div>
                 <div>Card</div>
             </button>
             <button class="nav-item" onclick="showView('stats')">
-                <div class="nav-icon">📊</div>
+                <div class="nav-icon"></div>
                 <div>Stats</div>
             </button>
             <button class="nav-item" onclick="showView('live')">
-                <div class="nav-icon">🏆</div>
+                <div class="nav-icon"></div>
                 <div>Live</div>
             </button>
         </div>
