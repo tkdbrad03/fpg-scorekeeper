@@ -529,6 +529,24 @@
             </div>
         </div>
     </div>
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
+<script>
+function sendPairingEmail(subject, message) {
+  Email.send({
+    Host: "smtp.gmail.com",
+    Username: "floridaplayersgroup25@gmail.com",
+    Password: "lvgs subn rsvq kxha",
+    To: "roncaldwell452@gmail.com, campbelln89@gmail.com, ray.elmore@gmail.com, tasha@therealmccray.com",
+    From: "floridaplayersgroup25@gmail.com",
+    Subject: subject,
+    Body: message
+  }).then(
+    msg => alert("✅ Pairings email sent successfully!")
+  ).catch(
+    err => alert("⚠️ Email failed to send: " + err)
+  );
+}
+</script>
 
     <script>
         // ===== Live data wiring (no Apps Script) =====
@@ -968,6 +986,11 @@ players = source.map(r => ({
                 '• Available in mobile app view\n\n' +
                 'Players will receive their group assignments tomorrow morning.'
             );
+            sendPairingEmail(
+  "Florida Players Group - Pairings Published",
+  "The latest pairings have been finalized. Check the FPG site for your group and tee time."
+);
+
         }
 
         // Initialize with live data
