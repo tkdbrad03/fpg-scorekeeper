@@ -530,23 +530,25 @@
         </div>
     </div>
     <script src="https://smtpjs.com/v3/smtp.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
+(function() {
+  // Initialize EmailJS using your public key
+  emailjs.init("lhuv6dc6HGg0x4jMT");
+})();
+
 function sendPairingEmail(subject, message) {
-  Email.send({
-    Host: "smtp.gmail.com",
-    Username: "floridaplayersgroup25@gmail.com",
-    Password: "lvgs subn rsvq kxha",
-    To: "roncaldwell452@gmail.com, campbelln89@gmail.com, ray.elmore@gmail.com, tasha@therealmccray.com",
-    From: "floridaplayersgroup25@gmail.com",
-    Subject: subject,
-    Body: message
-  }).then(
-    msg => alert("✅ Pairings email sent successfully!")
-  ).catch(
-    err => alert("⚠️ Email failed to send: " + err)
-  );
+  // Send through your pre-wired free template
+  emailjs.send("service_e2d79s5", "template_45479uk", {
+    from_name: "Florida Players Group",
+    reply_to: "floridaplayersgroup25@gmail.com",
+    message: subject + "\n\n" + message
+  })
+  .then(() => alert("✅ Pairings email sent successfully via EmailJS!"))
+  .catch(error => alert("⚠️ Email failed: " + JSON.stringify(error)));
 }
 </script>
+
 
     <script>
         // ===== Live data wiring (no Apps Script) =====
