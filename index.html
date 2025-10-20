@@ -536,13 +536,6 @@
     </div>
 
     <script>
-        // ========================================
-        // 🔧 SETUP: Configure your JSONBin ID here
-        // ========================================
-        // 1. Go to https://jsonbin.io and create a free account
-        // 2. Create a new bin with content: []
-        // 3. Copy your Bin ID (looks like: 6789abcd1234567890)
-        // 4. Paste it below:
         
         const JSONBIN_ID = "68f5ade543b1c97be97289ff";  // ← PUT YOUR BIN ID HERE
         
@@ -936,11 +929,6 @@
         }
 
         async function publishPairings() {
-            // Check if JSONBin is configured
-            if (JSONBIN_ID === "68f5ade543b1c97be97289ff") {
-                alert('⚠️ Please configure your JSONBin ID first!\n\n1. Go to https://jsonbin.io\n2. Create a free account\n3. Create a new bin with content: []\n4. Copy your Bin ID\n5. Paste it in the code where it says YOUR_BIN_ID_HERE');
-                return;
-            }
 
             if (groups.length === 0) {
                 alert('⚠️ No groups created yet! Create some pairings first.');
