@@ -1072,7 +1072,6 @@ async function publishPairings(pairingsData) {
   }
 
   const GITHUB_REPO = "tkdbrad03/fpg-scorekeeper";
-  const GH_TOKEN = ""; // Leave blank — you’re not exposing it here
 
   try {
     const response = await fetch(
@@ -1081,7 +1080,7 @@ async function publishPairings(pairingsData) {
         method: "POST",
         headers: {
           Accept: "application/vnd.github.v3+json",
-          Authorization: "token " + "", // we’ll call via webhook proxy next
+          // No Authorization header here — browser can't securely send token!
         },
         body: JSON.stringify({
           event_type: "update-pairings",
@@ -1103,6 +1102,7 @@ async function publishPairings(pairingsData) {
     alert("❌ Error publishing pairings. Check console.");
   }
 }
+
 
 
 </script>
