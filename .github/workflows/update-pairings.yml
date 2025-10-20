@@ -1,20 +1,25 @@
-name: Trigger Pairings Update
+name: Update Pairings File
 
 on:
-  workflow_dispatch:
   repository_dispatch:
-    types: [trigger-pairings]
+    types: [update-pairings]
 
 jobs:
-  trigger:
+  update-pairings:
     runs-on: ubuntu-latest
     steps:
-      - name: Send repository dispatch event
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Update pairings.json
         run: |
-          curl -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: token $GH_TOKEN" \
-            https://api.github.com/repos/tkdbrad03/fpg-scorekeeper/dispatches \
-            -d '{"event_type":"update-pairings","client_payload":{"pairings":"triggered_from_web"}}'
+          echo "${{ github.event.client_payload.pairings }}" > pairings.json
+          echo "✅ Updated pairings.json"
+
+      - name: Commit and push updated file
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add pairings.json
+          git commit -m "Updated pairings.json from dashboard" || echo "No changes to commit"
+          git push
