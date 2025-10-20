@@ -12,27 +12,45 @@
       box-sizing: border-box;
     }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8f9fa;
+      padding: 0;
       min-height: 100vh;
+    }
+    .header {
+      background: linear-gradient(135deg, #3c763d 0%, #2d5a2e 100%);
+      color: white;
+      padding: 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .header .logo {
+      display: block;
+      margin: 0 auto 0.75rem auto;
+      height: 80px;
+      max-width: 100%;
+      width: auto;
+    }
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .header .tagline {
+      color: #e6b800;
+      font-size: 1rem;
     }
     .container {
       max-width: 1200px;
       margin: 0 auto;
-    }
-    h1 {
-      color: white;
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 2.5em;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      padding: 0 20px 20px 20px;
     }
     .timestamp {
-      color: rgba(255,255,255,0.9);
+      color: #3c763d;
       text-align: center;
       margin-bottom: 20px;
       font-size: 1.1em;
+      font-weight: 600;
     }
     .pairings-grid {
       display: grid;
@@ -44,15 +62,17 @@
       background: white;
       border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid #e0e0e0;
     }
     .group-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(60, 118, 61, 0.2);
+      border-color: #3c763d;
     }
     .group-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #3c763d 0%, #2d5a2e 100%);
       color: white;
       padding: 15px;
       border-radius: 8px;
@@ -63,10 +83,13 @@
     }
     .tee-time {
       text-align: center;
-      color: rgba(102, 126, 234, 0.9);
-      font-weight: 600;
-      margin-bottom: 10px;
+      color: #e6b800;
+      font-weight: 700;
+      margin-bottom: 15px;
       font-size: 1.1em;
+      background: #fffdf5;
+      padding: 8px;
+      border-radius: 6px;
     }
     .player-list {
       list-style: none;
@@ -74,20 +97,23 @@
     .player-item {
       padding: 10px;
       margin: 5px 0;
-      background: #f8f9fa;
+      background: #f8fff9;
       border-radius: 6px;
-      border-left: 4px solid #667eea;
+      border-left: 4px solid #3c763d;
       font-size: 1.1em;
     }
     .scorekeepers {
       margin-top: 12px;
       padding-top: 12px;
-      border-top: 2px solid #f0f0f0;
+      border-top: 2px solid #e0e0e0;
       font-size: 0.9em;
-      color: #667eea;
+      color: #2d5a2e;
+      background: #d4edda;
+      padding: 10px;
+      border-radius: 6px;
     }
     .scorekeepers strong {
-      color: #764ba2;
+      color: #3c763d;
     }
     .no-pairings {
       background: white;
@@ -96,10 +122,15 @@
       text-align: center;
       color: #666;
       font-size: 1.2em;
+      border: 2px solid #e0e0e0;
+    }
+    .no-pairings h2 {
+      color: #3c763d;
+      margin-bottom: 10px;
     }
     .error {
       background: #fff3cd;
-      border: 1px solid #ffc107;
+      border: 2px solid #ffc107;
       color: #856404;
       padding: 20px;
       border-radius: 8px;
@@ -107,13 +138,17 @@
       margin: 20px 0;
     }
     .loading {
-      color: white;
+      color: #3c763d;
       text-align: center;
       font-size: 1.2em;
       padding: 40px;
+      background: white;
+      border-radius: 12px;
+      border: 2px solid #e0e0e0;
     }
     @media (max-width: 768px) {
-      h1 { font-size: 2em; }
+      .header h1 { font-size: 1.75rem; }
+      .header .logo { height: 60px; }
       .pairings-grid {
         grid-template-columns: 1fr;
       }
@@ -121,8 +156,12 @@
   </style>
 </head>
 <body>
+  <div class="header">
+    <img class="logo" src="https://raw.githubusercontent.com/tkdbrad03/fpg-scorekeeper/main/fpg-logo.png" alt="FPG Logo" />
+    <h1>FPG Current Pairings</h1>
+    <p class="tagline">Good Golf • Good Friends • Good Times</p>
+  </div>
   <div class="container">
-    <h1>🎮 FPG Current Pairings</h1>
     <div class="timestamp" id="timestamp"></div>
     <div id="pairingsContainer">
       <div class="loading">Loading pairings...</div>
@@ -145,10 +184,9 @@
       // Check if JSONBin is configured
       if (JSONBIN_ID === "YOUR_BIN_ID_HERE") {
         container.innerHTML = `
-          <div class="error">
-            <strong>Setup Required</strong>
-            <p>Please configure your JSONBin ID in the code.</p>
-            <p>See setup instructions in the admin dashboard.</p>
+          <div class="no-pairings">
+            <h2>No pairings available yet</h2>
+            <p>Pairings will appear here once published by the tournament organizer.</p>
           </div>
         `;
         return;
