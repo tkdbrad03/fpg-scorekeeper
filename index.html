@@ -1074,25 +1074,19 @@ async function publishPairings(pairingsData) {
   const GITHUB_REPO = "tkdbrad03/fpg-scorekeeper";
 
   try {
-    const response = await fetch(
-      `https://api.github.com/repos/${GITHUB_REPO}/dispatches`,
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-          // No Authorization header here — browser can't securely send token!
+    const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/dispatches`, {
+      method: "POST",
+      headers: { "Accept": "application/vnd.github.v3+json" },
+      body: JSON.stringify({
+        event_type: "update-pairings",
+        client_payload: {
+          pairings: JSON.stringify(pairingsData, null, 2),
         },
-        body: JSON.stringify({
-          event_type: "update-pairings",
-          client_payload: {
-            pairings: JSON.stringify(pairingsData, null, 2),
-          },
-        }),
-      }
-    );
+      }),
+    });
 
     if (response.ok) {
-      alert("✅ Pairings published! GitHub Action will update pairings.json.");
+      alert("✅ Pairings published! GitHub Action will update pairings.json shortly.");
     } else {
       const err = await response.text();
       alert("⚠️ GitHub dispatch failed:\n" + err);
@@ -1102,8 +1096,6 @@ async function publishPairings(pairingsData) {
     alert("❌ Error publishing pairings. Check console.");
   }
 }
-
-
 
 </script>
 
