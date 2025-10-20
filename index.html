@@ -950,12 +950,13 @@
             try {
                 // Publish to JSONBin
                 const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(pairingsData)
-                });
+    method: 'PUT',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_MASTER_KEY
+    },
+    body: JSON.stringify(pairingsData)
+});
 
                 if (response.ok) {
                     alert('✅ Pairings published!\n\nYour Google Site will show the updated pairings automatically.\n\nPlayers can now see their groups and tee times.');
