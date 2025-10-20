@@ -1,0 +1,24 @@
+name: Update Pairings
+on:
+  workflow_dispatch:        # runs manually from the Actions tab
+  repository_dispatch:      # can be triggered from your web app
+    types: [update-pairings]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Write pairings.json
+        run: |
+          echo '${{ github.event.client_payload.pairings }}' > pairings.json
+      - name: Commit & push
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config user.name "FPG Bot"
+          git config user.email "noreply@fpg.local"
+          git add pairings.json
+          git commit -m "Updated pairings via dashboard"
+          git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:main
