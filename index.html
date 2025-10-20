@@ -1065,53 +1065,27 @@ exportToGitHub(pairingsData);
     }));
   }
 
-  // ✅ Enhanced Publish Confirmation Alert
-  async function publishPairings(pairingsData) {
-    if (!Array.isArray(pairingsData) || pairingsData.length === 0) {
-      alert("⚠️ No pairings available to publish.");
-      return;
-    }
-
-    const GITHUB_TOKEN = "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";
-    const REPO_OWNER = "tkdbrad03";
-    const REPO_NAME = "fpg-scorekeeper";
-    const FILE_PATH = "pairings.json";
-    const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-    const message = `Updated pairings - ${new Date().toLocaleString()}`;
-    
-    try {
-      const existing = await fetch(apiUrl, {
-        headers: { Authorization: `token ${GITHUB_TOKEN}` }
-      });
-      const existingData = await existing.json();
-      const sha = existingData.sha || null;
-      const content = btoa(unescape(encodeURIComponent(JSON.stringify(pairingsData, null, 2))));
-
-      await fetch("https://api.github.com/repos/tkdbrad03/fpg-scorekeeper/dispatches", {
-  method: "POST",
-  headers: {
-    "Accept": "application/vnd.github.v3+json",
-    "Authorization": "token " + YOUR_PUBLIC_WEBHOOK_TOKEN // optional lightweight token or server relay
-  },
-  body: JSON.stringify({
-    event_type: "update-pairings",
-    client_payload: { pairings: JSON.stringify(pairingsData, null, 2) }
-  })
-});
-
-
-      if (response.ok) {
-  const liveUrl = window.location.origin + "/pairings.html";
-  const totalGroups = pairingsData.length;
-  const totalPlayers = pairingsData.reduce((sum, g) => sum + g.players.length, 0);
-
-  alert(
-    `✅ Pairings published successfully!\n\n` +
-    `${totalGroups} groups and ${totalPlayers} players published.\n\n` +
-    `They’re now live and viewable here:\n${liveUrl}`
-  );
-}
+async function publishPairings(pairingsData) {
+  if (!Array.isArray(pairingsData) || pairingsData.length === 0) {
+    alert("⚠️ No pairings available to publish.");
+    return;
   }
+
+  try {
+    const response = await fetch("/api/publishPairings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pairingsData),
+    });
+
+    const result = await response.json();
+    alert(result.message || "✅ Pairings published successfully!");
+  } catch (error) {
+    console.error("❌ Publish failed:", error);
+    alert("Error publishing pairings. Check console for details.");
+  }
+}
+
 </script>
 
 </body>
