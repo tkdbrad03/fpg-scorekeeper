@@ -1,4 +1,4 @@
-name: Update Pairings File
+name: Update Pairings JSON
 
 on:
   repository_dispatch:
@@ -8,18 +8,20 @@ jobs:
   update-pairings:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Update pairings.json
         run: |
           echo "${{ github.event.client_payload.pairings }}" > pairings.json
-          echo "✅ Updated pairings.json"
-
-      - name: Commit and push updated file
+          echo "Updated pairings.json"
+      
+      - name: Commit and push changes
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
           git add pairings.json
-          git commit -m "Updated pairings.json from dashboard" || echo "No changes to commit"
-          git push
+          git commit -m "Updated pairings.json via web publish" || echo "No changes to commit"
+          git push https://x-access-token:${GH_TOKEN}@github.com/tkdbrad03/fpg-scorekeeper.git HEAD:main
