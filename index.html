@@ -990,6 +990,39 @@ players = source.map(r => ({
             
             console.log('Publishing pairings:', pairingsData);
             localStorage.setItem('fpg_pairings', JSON.stringify(pairingsData));
+            // === Export pairings to pairings.json on GitHub Pages ===
+async function exportToGitHub(pairingsData) {
+  const repo = "tkdbrad03/fpg-scorekeeper"; // change to your actual repo name if different
+  const branch = "main";
+  const filePath = "pairings.json";
+  const token = "ghp_yourPAT"; // you’ll generate this below
+
+  const base64Content = btoa(JSON.stringify(pairingsData, null, 2));
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": `token ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: "Updated weekly pairings",
+      content: base64Content,
+      branch
+    })
+  });
+
+  if (res.ok) {
+    alert("✅ Pairings exported to GitHub Pages!");
+  } else {
+    const err = await res.json();
+    alert("⚠️ GitHub export failed: " + JSON.stringify(err));
+  }
+}
+
+// Call this after saving pairings locally
+exportToGitHub(pairingsData);
+
             
             // 2) Notify user (UI only — no emoji)
             alert(
