@@ -1087,18 +1087,18 @@ exportToGitHub(pairingsData);
       const sha = existingData.sha || null;
       const content = btoa(unescape(encodeURIComponent(JSON.stringify(pairingsData, null, 2))));
 
-      const response = await fetch(apiUrl, {
-        method: "PUT",
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: "application/vnd.github.v3+json"
-        },
-        body: JSON.stringify({
-          message,
-          content,
-          sha
-        })
-      });
+      await fetch("https://api.github.com/repos/tkdbrad03/fpg-scorekeeper/dispatches", {
+  method: "POST",
+  headers: {
+    "Accept": "application/vnd.github.v3+json",
+    "Authorization": "token " + YOUR_PUBLIC_WEBHOOK_TOKEN // optional lightweight token or server relay
+  },
+  body: JSON.stringify({
+    event_type: "update-pairings",
+    client_payload: { pairings: JSON.stringify(pairingsData, null, 2) }
+  })
+});
+
 
       if (response.ok) {
   const liveUrl = window.location.origin + "/pairings.html";
