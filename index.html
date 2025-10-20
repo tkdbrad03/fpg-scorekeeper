@@ -400,7 +400,7 @@
             background: white;
             border-radius: 12px;
             padding: 2rem;
-            max-width: 700px;
+            max-width: 600px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
@@ -442,34 +442,18 @@
             border-left: 3px solid #3c763d;
             margin-bottom: 0.25rem;
         }
-        
-        .url-box {
-            background: #f8f9fa;
-            border: 2px solid #3c763d;
+
+        .setup-notice {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
             border-radius: 8px;
             padding: 1rem;
-            margin: 1rem 0;
-            word-break: break-all;
-            font-family: monospace;
-            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            text-align: center;
         }
-        
-        .instructions {
-            background: #e7f3ff;
-            border-left: 4px solid #007bff;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-        }
-        
-        .instructions h4 {
-            color: #004085;
-            margin-bottom: 0.5rem;
-        }
-        
-        .instructions ol {
-            margin-left: 1.5rem;
-            line-height: 1.8;
+
+        .setup-notice strong {
+            color: #856404;
         }
         
         @media (max-width: 1024px) {
@@ -487,6 +471,11 @@
     </div>
 
     <div class="container">
+        <!-- Setup Notice (remove after configuring JSONBin) -->
+        <div class="setup-notice" id="setup-notice">
+            <strong>⚠️ Setup Required:</strong> Please configure your JSONBin ID in the code (line ~700). See setup instructions below.
+        </div>
+
         <div class="top-bar">
             <div class="stats">
                 <div class="stat-item">
@@ -561,53 +550,25 @@
         </div>
     </div>
 
-    <!-- Publish Modal -->
-    <div class="modal" id="publish-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>✅ Pairings Published!</h2>
-                <button class="close-btn" onclick="closeModal('publish-modal')">&times;</button>
-            </div>
-            
-            <div class="instructions">
-                <h4>📋 Shareable URL Generated</h4>
-                <p>Copy this URL to embed in your Google Site:</p>
-            </div>
-            
-            <div class="url-box" id="publish-url"></div>
-            
-            <button class="btn btn-primary" onclick="copyPublishUrl()" style="width: 100%; margin-bottom: 1rem;">
-                📋 Copy URL to Clipboard
-            </button>
-            
-            <div class="instructions">
-                <h4>🌐 How to Embed in Google Sites:</h4>
-                <ol>
-                    <li>Go to your Google Site editor</li>
-                    <li>Click <strong>Insert → Embed URL</strong></li>
-                    <li>Paste the URL above</li>
-                    <li>Set height to at least <strong>500px</strong></li>
-                    <li>Click <strong>Insert</strong></li>
-                    <li>Publish your Google Site</li>
-                </ol>
-                <p style="margin-top: 0.5rem;"><strong>Done!</strong> Players will see pairings on your site.</p>
-            </div>
-            
-            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #dee2e6;">
-                <p style="text-align: center; color: #6c757d;">
-                    Or share the URL directly: 
-                    <a href="#" id="direct-link" target="_blank" style="color: #3c763d;">View Pairings</a>
-                </p>
-            </div>
-        </div>
-    </div>
-
     <script>
+        // ========================================
+        // 🔧 SETUP: Configure your JSONBin ID here
+        // ========================================
+        // 1. Go to https://jsonbin.io and create a free account
+        // 2. Create a new bin with content: []
+        // 3. Copy your Bin ID (looks like: 6789abcd1234567890)
+        // 4. Paste it below:
+        
+        const JSONBIN_ID = "YOUR_BIN_ID_HERE";  // ← PUT YOUR BIN ID HERE
+        
+        // Once configured, you can remove the setup notice by uncommenting:
+        // document.getElementById('setup-notice').style.display = 'none';
+        // ========================================
+
         let players = [];
         let groups = [];
         let groupCounter = 0;
         let unassignedPlayers = [];
-        let currentPublishUrl = '';
 
         async function fetchCheckIns() {
             const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6XoBTQryAiLHQzKVboT3zij3gekRO0ywjtEg6DGhgjkFzlkEdBe22RZ-f_1TZrs-qewzAWBipaG_B/pub?output=csv';
@@ -989,13 +950,19 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        function publishPairings() {
+        async function publishPairings() {
+            // Check if JSONBin is configured
+            if (JSONBIN_ID === "68f5ade543b1c97be97289ff") {
+                alert('⚠️ Please configure your JSONBin ID first!\n\n1. Go to https://jsonbin.io\n2. Create a free account\n3. Create a new bin with content: []\n4. Copy your Bin ID\n5. Paste it in the code where it says YOUR_BIN_ID_HERE');
+                return;
+            }
+
             if (groups.length === 0) {
                 alert('⚠️ No groups created yet! Create some pairings first.');
                 return;
             }
 
-            // Format pairings data for URL encoding
+            // Format pairings data
             const pairingsData = groups.map((g, index) => ({
                 groupNumber: index + 1,
                 teeTime: g.teeTime,
@@ -1006,25 +973,24 @@
                 ].filter(k => k !== null)
             }));
 
-            // Encode and create URL
-            const encodedData = btoa(JSON.stringify(pairingsData));
-            const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
-            currentPublishUrl = `${baseUrl}pairings.html?p=${encodedData}`;
+            try {
+                // Publish to JSONBin
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(pairingsData)
+                });
 
-            // Show publish modal
-            document.getElementById('publish-url').textContent = currentPublishUrl;
-            document.getElementById('direct-link').href = currentPublishUrl;
-            document.getElementById('publish-modal').classList.add('active');
-        }
-
-        function copyPublishUrl() {
-            const url = currentPublishUrl;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('✅ URL copied to clipboard!\n\nNow paste it into your Google Sites embed.');
-            }).catch(err => {
-                console.error('Copy failed:', err);
-                alert('Copy failed. Please select and copy the URL manually.');
-            });
+                if (response.ok) {
+                    alert('✅ Pairings published!\n\nYour Google Site will show the updated pairings automatically.\n\nPlayers can now see their groups and tee times.');
+                } else {
+                    alert('⚠️ Failed to publish. Please check your Bin ID and try again.');
+                }
+            } catch (error) {
+                alert('❌ Error publishing pairings: ' + error.message);
+            }
         }
 
         // Initialize with live data
